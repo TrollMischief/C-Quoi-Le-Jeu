@@ -1,71 +1,103 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>C Quoi Le Jeu</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="icon" href="{{ url_for('static', filename='images/icône.png') }}" type="image/png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C Quoi Le Jeu</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="icon" href="{{ url_for('static', filename='images/icône.png') }}" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <video autoplay muted loop id="background-video">
-        <source src="{{ url_for('static', filename='background.webm') }}" type="video/webm">
-    </video>
-    <div class="header">
-        <!-- En-tête avec logo et menu utilisateur -->
-        <div class="logo-container" onclick="location.href='/'">
-            <img src="{{ url_for('static', filename='images/icône.png') }}" alt="Logo" class="logo">
-            <span class="site-name">C Quoi Le Jeu</span>
+
+  <header class="site-header">
+    <div class="container header-content">
+      <div class="logo-container" onclick="location.href='/'" role="link" aria-label="Accueil">
+        <img src="{{ url_for('static', filename='images/icône.png') }}" alt="Logo C Quoi Le Jeu" class="logo">
+        <h2 class="site-name">C Quoi Le Jeu</h2>
+      </div>
+
+      {% if username %}
+      <nav class="user-menu" aria-label="Menu utilisateur">
+        <button class="user-button" aria-haspopup="true" aria-expanded="false">{{ username }}</button>
+        <div class="dropdown-content">
+          <a href="{{ url_for('my_games') }}">Mes parties</a>
+          <a href="{{ url_for('settings') }}">Paramètres</a>
+          <a href="{{ url_for('logout') }}">Déconnexion</a>
         </div>
-        {% if username %}
-        <div class="user-menu">
-            <button class="user-button">{{ username }}</button>
-            <div class="dropdown-content">
-                <a href="{{ url_for('my_games') }}">Mes parties</a>
-                <a href="{{ url_for('settings') }}">Paramètres</a>
-                <a href="{{ url_for('logout') }}">Déconnexion</a>
-            </div>
-        </div>
-        {% endif %}
+        <button id="theme-toggle" class="theme-toggle-button" aria-label="Changer de thème">
+          <i id="theme-icon" class="fas fa-moon"></i>
+        </button>
+      </nav>
+      {% endif %}
     </div>
-    <div id="home-page" class="game-container">
-        <!-- Page d'accueil avec instructions et bouton pour démarrer le jeu -->
-        <h1>Bienvenue sur C Quoi Le Jeu !</h1>
-        <p>Le but du jeu est de deviner le nom d'un jeu vidéo à partir d'une image. Entrez votre réponse dans la barre de texte et appuyez sur Entrée ou cliquez sur Soumettre.</p>
+  </header>
+
+  <main class="container main-content">
+    <section id="home-page" class="game-container active">
+      <h1>Bienvenue sur <span class="highlight">C Quoi Le Jeu</span> !</h1>
+      <p class="intro-text">Une image. Un jeu vidéo. À vous de deviner ! Entrez le nom du jeu et validez pour voir si vous avez vu juste.</p>
+      <div class="form-group">
         <label for="game-count">Nombre de jeux à deviner :</label>
-        <select id="game-count">
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="15" selected>15</option>
-            <option value="20">20</option>
-            <option value="25">25</option>
-            <option value="27">27 (max)</option>
-            <!-- Changer le nombre au fur et à mesure des ajouts de jeu -->
+        <select id="game-count" name="game-count" aria-label="Nombre de jeux à deviner">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="15" selected>15</option>
+          <option value="20">20</option>
+          <option value="25">25</option>
+          <option value="27">27 (max)</option>
         </select>
-        <button id="start-button">Jouer !</button>
-    </div>
-    <div id="game-page" class="game-container" style="display: none;">
-        <!-- Page de jeu avec image, entrée de réponse et feedback -->
-        <div id="game-image-container">
-            <img id="game-image" src="" alt="Game Image">
-            <button id="return-home-button" style="display: none;">Retourner à l'accueil</button>
-        </div>
-        <div class="input-bar">
-            <input type="text" id="game-name-input" placeholder="Nom du jeu">
-            <button id="submit-button">Soumettre</button>
-            <button id="skip-button">Passer</button>
-            <div id="suggestions-container"></div> <!-- Conteneur pour les suggestions -->
-        </div>
-        <div id="feedback"></div>
-        <div id="score-container">
-            <p>Score : <span id="score">0</span></p>
-            <p>Essais restants : <span id="remaining-attempts">3</span></p>
-        </div>
-    </div>
-    <a href="{{ url_for('contact') }}" class="contact-us-button">✉️Contactez-nous !</a>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-    <footer>
-        <p>Copyright © 2025 C Quoi Le Jeu. Tous droits réservés. Version 1.2.1</p>
-    </footer>
+      </div>
+      <button id="start-button" class="primary-button">Commencer !</button>
+    </section>
+
+    <section id="game-page" class="game-container" hidden>
+      <div id="game-image-container">
+        <img id="game-image" src="" alt="Image à deviner">
+        <button id="return-home-button" class="secondary-button" hidden>Retour à l’accueil</button>
+      </div>
+
+      <div class="input-bar">
+        <input type="text" id="game-name-input" placeholder="Nom du jeu" aria-label="Nom du jeu">
+        <button id="submit-button" class="primary-button">Soumettre</button>
+        <button id="skip-button" class="secondary-button">Passer</button>
+        <div id="suggestions-container" class="suggestions" hidden></div>
+      </div>
+
+      <div id="feedback" role="status" aria-live="polite"></div>
+
+      <div id="score-container" class="score-board">
+        <p>Score : <span id="score">0</span></p>
+        <p>Essais restants : <span id="remaining-attempts">3</span></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <a href="{{ url_for('contact') }}" class="contact-us-button"><i class="fas fa-headset"></i>Contactez-nous !</a>
+    <p>© 2025 C Quoi Le Jeu — Tous droits réservés. Version 1.2.1</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <script>
+    const toggleButton = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+
+    function setTheme(mode) {
+      document.documentElement.setAttribute('data-theme', mode);
+      localStorage.setItem('theme', mode);
+      themeIcon.className = mode === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+    }
+
+    toggleButton?.addEventListener('click', () => {
+      const currentTheme = localStorage.getItem('theme') || 'dark';
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      setTheme(newTheme);
+    });
+
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+  </script>
 </body>
 </html>
